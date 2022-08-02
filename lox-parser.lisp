@@ -22,26 +22,15 @@
 (defparser =whitespace ()
     (skip-many (char-in *whitespace*)))
 
-(defun trim-whitespace (parser)
-  (prog2! '=whitespace parser '=whitespace))
-
 (defparser =symbol-character ()
   (char-if (lambda (char) (not (member char *special-characters*)))))
-
-(defparser =symbol ()
-  (let! ((char-list (collect1 '=symbol-character)))
-        (ok (coerce char-list 'string))))
 
 (defun parenthesis (parser)
   (prog2! (char-of #\() parser (char-of #\))))
 
-(defparser =binding ()
-  (let! ((variable '=symbol)
-         (walrus   (trim-whitespace (string-of ":=")))
-         (term     '=symbol))
-        (ok (make-abstraction :variable variable
-                              :term term
-                              :binding true))))
+(defparser =symbol ()
+  (let! ((char-list (collect1 '=symbol-character)))
+        (ok (coerce char-list 'string))))
 
 (defparser =abstraction ()
   (let! ((λ        (char-of #\λ))
@@ -56,18 +45,10 @@
        '=abstraction
        '=symbol))
 
-(defmacro let@ ((&rest bindings) &body body)
-  "Anaphoric self-callable LET."
-  (let ((names (mapcar #'first bindings))
-        (values (mapcar #'second bindings)))
-    `(labels ((@ ,names ,@body))
-       (@ ,@values))))
-
 (defparser =term ()
   (let! ((applications (sep '=applicative '=whitespace)))
     (ok (reduce (lambda (a b) (make-application :left-term a :right-term b))
                 applications))))
-
 
 (defun parse-term (string)
   (parse-with '=term string))
