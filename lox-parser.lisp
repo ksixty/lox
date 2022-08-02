@@ -63,18 +63,6 @@
     `(labels ((@ ,names ,@body))
        (@ ,@values))))
 
-(defun reduce-right! (function parser &key initial-parser)
-  "Return a parser that keeps running until failure, and reduces its results into one value.
-If INITIAL-PARSER is supplied, the parser may succeed without calling FUNCTION by returning INITIAL-PARSER's response."
-  (let! ((initial-value (or initial-parser parser)))
-    (let@ ((result initial-value))
-      (handle
-        (let! ((obj parser))
-          (@ (funcall function result obj)))
-        (lambda (expected trace)
-          (declare (ignore expected trace))
-          (ok result))))))
-
 (defparser =term ()
   (let! ((applications (sep '=applicative '=whitespace)))
     (ok (reduce (lambda (a b) (make-application :left-term a :right-term b))
