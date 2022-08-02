@@ -5,7 +5,7 @@
 
 (defstruct abstraction variable term binding)
 (defstruct application left-term right-term)
-(defstruct var         db-index scope)
+(defstruct var         db-index scope) ;; TODO
 
 (defmethod print-object ((obj abstraction) stream)
   (with-slots (variable term) obj
@@ -50,5 +50,7 @@
     (ok (reduce (lambda (a b) (make-application :left-term a :right-term b))
                 applications))))
 
+;; exported
 (defun parse-term (string)
+  "Parse string and return its terms"
   (parse-with '=term string))
