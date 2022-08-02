@@ -1,7 +1,5 @@
 * λox the lambda-calculus interpreter
 
-λox cam
-
 ** Features
 
 *** Parser
@@ -45,3 +43,7 @@ It's not decided yet whether Lisp's numbers should be included in the interprete
 **** IO
 
 Lololol
+
+**** Global Scope
+
+I am thinking of introducing the walrus operator (~:=~) for defining global variables. This is a way of making λox behave more like the general-purpose programming languages, i.e. you can define functions and libraries and namespaces... except everything’s lambda.
