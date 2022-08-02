@@ -4,7 +4,5 @@
 
 (defun prompt ()
   (loop
-    (let ((input (progn (read-line))))
+    (let ((input (read-line)))
       (format t "~A~%" (lox-parser:parse-term input)))))
-
-(prompt-read)
