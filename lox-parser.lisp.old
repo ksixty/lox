@@ -1,0 +1,56 @@
+(in-package #:lox-parser)
+
+(defconstant +whitespace+ '(#\space #\newline #\tab))
+(defconstant +special-characters+ (list* #\λ #\( #\) #\. +whitespace+))
+
+(defstruct abstraction variable term)
+(defstruct application left-term right-term)
+(defstruct var         db-index scope)
+
+(defun whitespace ()
+  (smug:.first (smug:.map nil (smug:.is 'member +whitespace+))))
+
+(defun lox-read (&optional (parser (term)))
+  (smug:.prog2 (smug:.optional (whitespace))
+               parser
+               (smug:.optional (whitespace))))
+
+(defun lox-char ()
+  (smug:.or (smug:.and (smug:.char= #\\) (smug:.item)))
+  (smug:.is-not 'member +special-characters+))
+
+(defun term ()
+  (smug:.or (expression) (var)))
+
+(defun var ()
+  (smug:.first (smug:.map 'string (lox-char))))
+
+
+(defun expression ()
+  (smug:.or (smug:.let* ((λ   (smug:.char= #\λ))
+                         (var (var))
+                         (dot (smug:.char= #\.))
+                         (exp (lox-read)))
+                        (smug:.identity (make-abstraction :var (intern var)
+                                                          :body (intern exp))))
+            (smug:.let* ((applications (smug:.first (smug:.map 'list (lox-read)))
+                          (smug:.identity (reduce (lambda (z x) (make-application :left z
+                                                                                  :right x))
+                                                  applications :from-end t)))))))
+
+
+
+(defun application ()
+  (smug:.or (smug:.let* ((left  (smug:.char= #\())
+                         (exp  (lox-read))
+                         (right (smug:.char= #\))))
+                        (smug:.identity exp))
+            (smug:.let* ((a (lox-read (var)))
+                         (b (lox-read (var))))
+                        (smug:.identity (cons a b)))))
+
+(defun binding ()
+  (smug:.let* ((var (var))
+               (=   (lox-read (smug:.string-equal ":=")))
+               (exp (var)))
+              (smug:.identity (cons var exp))))

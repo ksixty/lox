@@ -1,0 +1,47 @@
+* λox the lambda-calculus interpreter
+
+λox cam
+
+** Features
+
+*** Parser
+
+λox uses [[https://git.sr.ht/~shunter/parsnip/][parsnip]], the monadic parser combinator library (and they say you need a Haskell to parse things!) to parse input stream into terms of following types:
+
+- variable (symbol): =x=,
+- abstraction (λ-function): =λx.M=,
+- application: =M N=.
+
+Application is left-associative, i.e. terms are applied by pairs from left to right:
+#+begin_src lisp
+LOX> (lox-parser:parse-term "a b c d")
+(((a b) c) d)
+#+end_src
+
+Order could be altered by using parenthesis as one would do in regular mathematical expressions:
+#+begin_src lisp
+LOX> (lox-parser:parse-term "a b (c d)")
+((a b) (c d))
+#+end_src
+
+Example --- fixed-point combinator definition:
+#+begin_src lisp
+LOX> (lox-parser:parse-term "λf.(λx.f (x x)) λx.f (x x)")
+λf.(λx.(f (x x)) λx.(f (x x)))
+#+end_src
+
+*** Evaluator
+
+TODO. I don't want to do the fun part alone... waiting for my friends to find some spare time.
+
+**** Reduction
+
+De Bruijn indexes should be assigned to all variables to avoid name collisions and simplify α-reduction.
+
+**** Numbers
+
+It's not decided yet whether Lisp's numbers should be included in the interpreter. It's possible to encode natural numbers using Church encoding, after all.
+
+**** IO
+
+Lololol
